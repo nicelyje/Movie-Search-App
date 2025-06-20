@@ -14,6 +14,16 @@ export default function App() {
   const [isScrolled, setIsScrolled] = useState(false);
   const searchContainerRef = useRef(null);
   const [showButton, setShowButton] = useState(false);
+  const [selectedMovie, setSelectedMovie] = useState(null);
+
+  const openModal = (movie) => {
+    setSelectedMovie(movie);
+  };
+
+  const closeModal = () => {
+    setSelectedMovie(null);
+  };
+
   // let debounceTimeout;
 
   const searchMovies = async () => {
@@ -46,10 +56,17 @@ export default function App() {
             `https://api.themoviedb.org/3/movie/popular?api_key=${API_KEY}&page=2`
           ),
         ]);
+
         const data1 = await res1.json();
         const data2 = await res2.json();
-        setMovies([...data1.results, ...data2.results]);
-        setOriginalMovies([...data1.results, ...data2.results]);
+
+        const combined = [...data1.results, ...data2.results];
+
+        // Sort by popularity descending
+        combined.sort((a, b) => b.popularity - a.popularity);
+
+        setMovies(combined);
+        setOriginalMovies(combined);
       } catch (err) {
         console.error("Error fetching initial movies:", err);
       } finally {
@@ -252,7 +269,7 @@ export default function App() {
           </div>
 
           {loading ? (
-            <p className="text-center">Loading...</p>
+            <p className="text-centet text-lg ">Please wait a moment...</p>
           ) : (
             <>
               {!query && (
@@ -265,9 +282,10 @@ export default function App() {
                   <div key={movie.id} className="group image-container">
                     {movie.poster_path ? (
                       <img
-                        src={`https://image.tmdb.org/t/p/w300${movie.poster_path}`}
+                        src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
                         alt={movie.title}
                         className="w-full object-contain"
+                        onClick={() => openModal(movie)}
                       />
                     ) : (
                       <div className="h-full bg-gray-700 rounded-md flex items-center justify-center text-sm text-gray-400">
@@ -293,6 +311,49 @@ export default function App() {
                     </div>
                   </div>
                 ))}
+
+                {selectedMovie && (
+                  <div
+                    className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 rounded-xl"
+                    onClick={closeModal}
+                  >
+                    <div
+                      className="bg-white dark:bg-gray-900 text-black dark:text-white rounded-lg max-w-xl w-full shadow-lg relative"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <ion-icon
+                        name="close-outline"
+                        onClick={closeModal}
+                        className="absolute top-4 right-4 text-gray-500
+                     hover:text-gray-200 text-4xl cursor-pointer bg-black rounded-full hover:scale-105"
+                      ></ion-icon>
+                      <img
+                        src={`https://image.tmdb.org/t/p/w400${selectedMovie.poster_path}`}
+                        alt={selectedMovie.title}
+                        className="w-full rounded mb-4"
+                      />
+                      <div className="p-4">
+                        <h2 className="text-3xl font-bold mb-2">
+                          {selectedMovie.title}
+                        </h2>
+                        <p className="text-xl mb-4">{selectedMovie.overview}</p>
+                        <p className="text-xl mb-4"></p>
+                        <p className="text-md font-semibold">
+                          Release Date:{" "}
+                          {selectedMovie.release_date
+                            ? new Date(
+                                selectedMovie.release_date
+                              ).toLocaleDateString("en-US", {
+                                year: "numeric",
+                                month: "long",
+                                day: "numeric",
+                              })
+                            : "N/A"}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </>
           )}
