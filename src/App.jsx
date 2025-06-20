@@ -13,6 +13,7 @@ export default function App() {
   const [showDropdown, setShowDropdown] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const searchContainerRef = useRef(null);
+  const [showButton, setShowButton] = useState(false);
   // let debounceTimeout;
 
   const searchMovies = async () => {
@@ -89,7 +90,21 @@ export default function App() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowButton(window.scrollY > 300);
+    };
 
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  };
   return (
     <div className={`${darkMode ? "dark" : ""}`}>
       <div
@@ -101,7 +116,7 @@ export default function App() {
             isScrolled
               ? darkMode
                 ? "bg-gray-900/90 shadow-md"
-                : "bg-white/90 shadow-md"
+                : "bg-gray-100/90 shadow-md"
               : "bg-transparent"
           }`}
         >
@@ -160,13 +175,19 @@ export default function App() {
             </div>
           </div>
         </header>
-        <div className="px-10">
+        <div className="px-10 mb-10">
           <h1 className="text-4xl font-bold text-center text-black mb-6 dark:text-white">
             HanapFlix
           </h1>
           <div className="flex justify-center mb-8">
             <div ref={searchContainerRef} className="sm:w-[80%] w-1/2 relative">
-              <div className="search-container">
+              <div
+                className={`search-container  rounded-xl ${
+                  showDropdown && recentSearches.length > 0
+                    ? "rounded-b-none"
+                    : ""
+                }`}
+              >
                 <ion-icon
                   name="search-outline"
                   onClick={searchMovies}
@@ -203,26 +224,29 @@ export default function App() {
                 )}
               </div>
               {showDropdown && recentSearches.length > 0 && (
-                <div className="dropdown-container">
-                  {recentSearches.slice(0, 5).map((item, index) => (
-                    <div
-                      key={index}
-                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center"
-                      onClick={() => {
-                        setQuery(item);
-                        setShowDropdown(false);
-                        inputRef.current.focus();
-                      }}
-                    >
-                      <ion-icon
-                        name="search-outline"
-                        onClick={searchMovies}
-                        className="text-2xl mr-2 text-gray-500"
-                      ></ion-icon>
-                      {item}
-                    </div>
-                  ))}
-                </div>
+                <>
+                  <hr className="border-t border-gray-300 dark:border-white/50 px-5" />
+                  <div className="dropdown-container">
+                    {recentSearches.slice(0, 5).map((item, index) => (
+                      <div
+                        key={index}
+                        className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center"
+                        onClick={() => {
+                          setQuery(item);
+                          setShowDropdown(false);
+                          inputRef.current.focus();
+                        }}
+                      >
+                        <ion-icon
+                          name="search-outline"
+                          onClick={searchMovies}
+                          className="text-2xl mr-2 text-gray-500"
+                        ></ion-icon>
+                        {item}
+                      </div>
+                    ))}
+                  </div>
+                </>
               )}
             </div>
           </div>
@@ -246,7 +270,7 @@ export default function App() {
                         className="w-full object-contain"
                       />
                     ) : (
-                      <div className="h-[300px] bg-gray-700 rounded-md flex items-center justify-center text-sm text-gray-400">
+                      <div className="h-full bg-gray-700 rounded-md flex items-center justify-center text-sm text-gray-400">
                         No image
                       </div>
                     )}
@@ -273,6 +297,17 @@ export default function App() {
             </>
           )}
         </div>
+        {showButton && (
+          <button
+            onClick={scrollToTop}
+            className="fixed bottom-4 right-6  bg:gray-200/80 dark:bg:gray-200 text-white  rounded-full shadow-lg hover:bg-gray-600/50 transition"
+          >
+            <ion-icon name="chevron-up-outline" class="w-16 h-16"></ion-icon>
+          </button>
+        )}
+        <footer className="mt-4 flex text-black text-center justify-center items-center p-10 text-lg dark:text-white ">
+          Copyrights 2025 © HanapFlix. All rights reserved.
+        </footer>
       </div>
     </div>
   );
