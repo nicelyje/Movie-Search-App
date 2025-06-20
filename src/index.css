@@ -4,6 +4,21 @@
 
 @layer base {
   body {
-    @apply bg-gray-100 text-gray-900 p-6 dark:bg-gray-800 dark:text-gray-200;
+    @apply bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-200;
+  }
+}
+
+@layer utilities {
+  .image-container {
+    @apply overflow-hidden hover:scale-110 hover:border hover:z-10 hover:cursor-pointer transition-transform duration-200 bg-gray-800 rounded-xl shadow-lg relative;
+  }
+  .description {
+    @apply hidden group-hover:flex flex-col absolute bottom-0 bg-black/60 text-white rounded-t-lg w-full p-4 transition-opacity duration-300;
+  }
+  .dropdown-container {
+    @apply absolute left-0 mt-1 w-full bg-white dark:bg-gray-800 text-black text-2xl dark:text-white dark:hover:text-black rounded-lg shadow-md border border-gray-200 overflow-y-auto z-10;
+  }
+  .search-container {
+    @apply flex items-center bg-white text-black rounded-xl pl-3 pr-2 h-20 border border-gray-300 dark:bg-gray-600 dark:text-white dark:border-gray-600;
   }
 }
